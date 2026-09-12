@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B5D45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مساري">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.svg">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<title>مساري | متتبّع المسار الدراسي</title>
+<style>
+:root{
+  --ink:#20261F;
+  --paper:#FAF6EE;
+  --card:#FFFFFF;
+  --sage:#EEF1E6;
+  --green:#0B5D45;
+  --green-dark:#083F30;
+  --ochre:#C6862B;
+  --ochre-light:#F3E0BC;
+  --line:#E2DCC9;
+  --muted:#6B6F5E;
+  --danger:#A32D2D;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Segoe UI','Tahoma','Geeza Pro','Arial',sans-serif;
+  line-height:1.6;
+}
+h1,h2,h3,.brand{font-family:'Traditional Arabic','Amiri','Georgia',serif;}
+a{color:var(--green-dark);}
+
+header.top{
+  background:var(--green);
+  color:#fff;
+  padding:18px 20px 44px;
+  position:relative;
+}
+header.top .brand{
+  font-size:26px;
+  font-weight:700;
+  margin:0;
+}
+header.top .tagline{
+  font-size:13px;
+  opacity:.85;
+  margin:4px 0 0;
+}
+.id-strip{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);
+  margin:-32px 16px 0;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  position:relative;
+  z-index:2;
+}
+.id-strip .seal{
+  width:46px;height:46px;border-radius:50%;
+  background:var(--ochre-light);
+  color:var(--ochre);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:16px;flex:none;
+  border:2px solid var(--ochre);
+}
+.id-strip .who{flex:1;min-width:0;}
+.id-strip .who .name{font-weight:700;font-size:15px;}
+.id-strip .who .nid{font-size:12px;color:var(--muted);}
+
+nav.tabs{
+  display:flex;
+  gap:6px;
+  margin:20px 16px 0;
+  border-bottom:1px solid var(--line);
+  overflow-x:auto;
+}
+nav.tabs button{
+  background:none;border:none;cursor:pointer;
+  font-family:'Segoe UI','Tahoma','Geeza Pro','Arial',sans-serif;
+  font-size:14px;font-weight:500;
+  color:var(--muted);
+  padding:10px 12px;
+  border-bottom:3px solid transparent;
+  white-space:nowrap;
+}
+nav.tabs button.active{
+  color:var(--green-dark);
+  border-bottom-color:var(--ochre);
+}
+
+main{padding:16px;max-width:720px;margin:0 auto;}
+.section{display:none;}
+.section.active{display:block;}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:14px;
+}
+.card h3{margin:0 0 10px;font-size:16px;color:var(--green-dark);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat{
+  background:var(--sage);
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+}
+.stat .num{font-size:22px;font-weight:700;color:var(--green-dark);}
+.stat .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.news-item{
+  border-bottom:1px solid var(--line);
+  padding:10px 0;
+}
+.news-item:last-child{border-bottom:none;}
+.news-item .date{font-size:11px;color:var(--ochre);font-weight:700;}
+.news-item .txt{font-size:14px;margin-top:2px;}
+.news-note{font-size:12px;color:var(--muted);margin-top:8px;}
+
+.phase{
+  border:1px solid var(--line);
+  border-radius:14px;
+  margin-bottom:12px;
+  background:var(--card);
+  overflow:hidden;
+}
+.phase-head{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;cursor:pointer;
+}
+.phase-head .dot{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--sage);color:var(--green-dark);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;flex:none;
+}
+.phase-head .info{flex:1;}
+.phase-head .info .t{font-weight:700;font-size:15px;}
+.phase-head .info .avg{font-size:12px;color:var(--muted);}
+.phase-head .chev{transition:transform .2s;color:var(--muted);}
+.phase.open .chev{transform:rotate(180deg);}
+.phase-body{display:none;padding:0 16px 16px;}
+.phase.open .phase-body{display:block;}
+
+table.grades{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
+table.grades th{
+  text-align:right;color:var(--muted);font-weight:500;
+  padding:6px 4px;border-bottom:1px solid var(--line);
+}
+table.grades td{
+  padding:6px 4px;border-bottom:1px solid var(--line);
+  vertical-align:middle;
+}
+table.grades input, table.grades select{
+  width:100%;border:1px solid var(--line);border-radius:6px;
+  padding:6px;font-family:'Segoe UI','Tahoma','Geeza Pro','Arial',sans-serif;font-size:13px;
+  background:var(--paper);
+}
+table.grades .rm{
+  background:none;border:none;color:var(--danger);cursor:pointer;font-size:15px;
+}
+.row-actions{display:flex;justify-content:space-between;margin-top:10px;}
+
+button.btn{
+  background:var(--green);color:#fff;border:none;
+  border-radius:9px;padding:9px 16px;font-size:13px;
+  font-weight:700;cursor:pointer;font-family:'Segoe UI','Tahoma','Geeza Pro','Arial',sans-serif;
+}
+button.btn.ghost{
+  background:none;color:var(--green-dark);border:1px solid var(--green);
+}
+button.btn.small{padding:6px 10px;font-size:12px;}
+
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;}
+input[type=text], select.field{
+  width:100%;padding:10px;border:1px solid var(--line);
+  border-radius:9px;background:var(--paper);
+  font-family:'Segoe UI','Tahoma','Geeza Pro','Arial',sans-serif;font-size:14px;
+}
+.save-note{
+  font-size:12px;color:var(--green-dark);margin-top:10px;
+  display:none;
+}
+.foot-note{
+  font-size:12px;color:var(--muted);text-align:center;
+  margin:18px 0 30px;
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <p class="brand">مساري</p>
+  <p class="tagline">متتبّع المسار الدراسي ومستجدات وزارة التربية الوطنية</p>
+</header>
+
+<div class="id-strip">
+  <div class="seal" id="sealInit">؟</div>
+  <div class="who">
+    <div class="name" id="stripName">أضف اسمك في «الملف الشخصي»</div>
+    <div class="nid" id="stripNid">الرقم الوطني: غير محدد</div>
+  </div>
+</div>
+
+<nav class="tabs">
+  <button data-tab="home" class="active">الرئيسية</button>
+  <button data-tab="news">المستجدات</button>
+  <button data-tab="path">المسار الدراسي</button>
+  <button data-tab="profile">الملف الشخصي</button>
+</nav>
+
+<main>
+
+  <section class="section active" id="tab-home">
+    <div class="card">
+      <h3>نظرة عامة</h3>
+      <div class="grid2">
+        <div class="stat"><div class="num" id="statAvg">--</div><div class="lbl">المعدل العام التراكمي</div></div>
+        <div class="stat"><div class="num" id="statLevel">--</div><div class="lbl">المستوى الحالي</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>آخر مستجدات الوزارة</h3>
+      <div id="homeNewsPreview"></div>
+      <p class="news-note">اضغط على تبويب «المستجدات» لعرض كل الأخبار.</p>
+    </div>
+  </section>
+
+  <section class="section" id="tab-news">
+    <div class="card">
+      <h3>مستجدات وزارة التربية الوطنية والتعليم الأولي والرياضة</h3>
+      <div id="newsList"></div>
+      <p class="news-note">هذه لقطة لآخر الأخبار المنشورة على الموقع الرسمي بتاريخ إعداد هذا التطبيق. للاطلاع على كل التفاصيل والمذكرات الرسمية والمستجدات اللحظية، زوروا
+        <a href="https://www.men.gov.ma" target="_blank" rel="noopener">men.gov.ma</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="tab-path">
+    <div class="card">
+      <h3>المعدل التراكمي لكل الأسلاك</h3>
+      <div class="grid2">
+        <div class="stat"><div class="num" id="pathOverallAvg">--</div><div class="lbl">المعدل العام</div></div>
+        <div class="stat"><div class="num" id="pathYearsCount">0</div><div class="lbl">عدد السنوات المسجلة</div></div>
+      </div>
+    </div>
+    <div id="phasesWrap"></div>
+    <p class="save-note" id="pathSaveNote">تم حفظ التعديلات ✓</p>
+  </section>
+
+  <section class="section" id="tab-profile">
+    <div class="card">
+      <h3>الملف الشخصي</h3>
+      <label for="fName">الاسم الكامل</label>
+      <input type="text" id="fName" placeholder="مثال: سلمى بنعلي">
+
+      <label for="fInstitution">المؤسسة الحالية</label>
+      <input type="text" id="fInstitution" placeholder="مثال: ثانوية ابن سينا التأهيلية">
+
+      <label for="fLevel">المستوى الدراسي الحالي</label>
+      <select class="field" id="fLevel">
+        <option value="">اختر المستوى</option>
+        <option value="ابتدائي">التعليم الابتدائي</option>
+        <option value="إعدادي">التعليم الإعدادي</option>
+        <option value="ثانوي">التعليم الثانوي التأهيلي</option>
+        <option value="جامعي">التعليم العالي / الجامعي</option>
+      </select>
+
+      <label for="fNid">الرقم الوطني للتلميذ(ة) — رمز مسار (INE)</label>
+      <input type="text" id="fNid" placeholder="مثال: G123456789">
+
+      <label for="fCne">الرقم الوطني للطالب(ة) الجامعي (CNE)</label>
+      <input type="text" id="fCne" placeholder="مثال: R130123456">
+
+      <button class="btn" id="saveProfileBtn" style="margin-top:16px;">حفظ الملف الشخصي</button>
+      <p class="save-note" id="profileSaveNote">تم الحفظ ✓</p>
+    </div>
+    <p class="foot-note">
+      البيانات التي تدخلها تُحفظ محليًا لك فقط داخل هذا التطبيق، وهي معلومات تُدخلها بنفسك للتنظيم الشخصي —
+      هذا التطبيق غير متصل بمنظومة "مسار" أو بأي قاعدة بيانات رسمية للوزارة.
+    </p>
+  </section>
+
+</main>
+
+<script>
+const NEWS = [
+  {date:"يوليوز 2026", txt:"بلاغ صحفي بشأن إعطاء الانطلاقة للدخول المدرسي 2026-2027."},
+  {date:"يوليوز 2026", txt:"مذكرة رقم 26-068 في شأن تدبير طلبات الاستفادة من منح التعليم العالي والتكوين المهني برسم سنة 2026-2027."},
+  {date:"يوليوز 2026", txt:"بلاغ صحفي بشأن تمديد فترة إيداع طلبات الاستفادة من خدمات الإيواء والإطعام والنقل المدرسي ودور الطالب(ة) برسم الموسم 2026-2027."},
+  {date:"يونيو 2026", txt:"الإعلان عن نتائج الدورة العادية للامتحان الوطني الموحد لنيل شهادة البكالوريا لسنة 2026، عبر الموقعين الرسميين bac.men.gov.ma وbac.t3.technology."},
+  {date:"يونيو 2026", txt:"احتفاء الوزارة بالمتفوقات والمتفوقين الحاصلين على أعلى المعدلات في امتحانات البكالوريا دورة يونيو 2026."},
+  {date:"2026", txt:"صدور مقرر وزير التربية الوطنية والتعليم الأولي والرياضة بشأن تنظيم السنة الدراسية 2026-2025."}
+];
+
+const PHASES = [
+  {key:"ابتدائي", label:"التعليم الابتدائي", init:"إ"},
+  {key:"إعدادي", label:"التعليم الإعدادي", init:"إع"},
+  {key:"ثانوي", label:"التعليم الثانوي التأهيلي", init:"ث"},
+  {key:"جامعي", label:"التعليم العالي / الجامعي", init:"ج"}
+];
+
+let DATA = {
+  profile:{name:"",institution:"",level:"",nid:"",cne:""},
+  path:{"ابتدائي":[],"إعدادي":[],"ثانوي":[],"جامعي":[]}
+};
+
+function uid(){return Math.random().toString(36).slice(2,9);}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem('massari-student-data');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      DATA = Object.assign(DATA, parsed);
+    }
+  }catch(e){ /* لا توجد بيانات محفوظة بعد، أو التخزين غير متاح */ }
+  renderAll();
+}
+
+function saveData(noteEl){
+  try{
+    localStorage.setItem('massari-student-data', JSON.stringify(DATA));
+    if(noteEl){
+      noteEl.style.display='block';
+      setTimeout(()=>{noteEl.style.display='none';},1800);
+    }
+  }catch(e){ console.error('تعذر الحفظ محليًا', e); }
+}
+
+function renderNews(){
+  const list = document.getElementById('newsList');
+  list.innerHTML = NEWS.map(n=>`
+    <div class="news-item">
+      <div class="date">${n.date}</div>
+      <div class="txt">${n.txt}</div>
+    </div>`).join('');
+  document.getElementById('homeNewsPreview').innerHTML = NEWS.slice(0,2).map(n=>`
+    <div class="news-item">
+      <div class="date">${n.date}</div>
+      <div class="txt">${n.txt}</div>
+    </div>`).join('');
+}
+
+function computeAvg(rows){
+  const vals = rows.map(r=>parseFloat(r.avg)).filter(v=>!isNaN(v));
+  if(!vals.length) return null;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length);
+}
+
+function renderPath(){
+  const wrap = document.getElementById('phasesWrap');
+  wrap.innerHTML = PHASES.map(p=>{
+    const rows = DATA.path[p.key] || [];
+    const avg = computeAvg(rows);
+    const rowsHtml = rows.map(r=>`
+      <tr data-id="${r.id}">
+        <td><input type="text" class="f-year" value="${r.year||''}" placeholder="مثال: 2024-2025"></td>
+        <td><input type="text" class="f-grade" value="${r.grade||''}" placeholder="مثال: الثالثة ابتدائي"></td>
+        <td><input type="text" class="f-avg" value="${r.avg||''}" placeholder="مثال: 15.4" inputmode="decimal"></td>
+        <td><button class="rm" title="حذف السنة">✕</button></td>
+      </tr>`).join('');
+    return `
+    <div class="phase" data-phase="${p.key}">
+      <div class="phase-head">
+        <div class="dot">${p.init}</div>
+        <div class="info">
+          <div class="t">${p.label}</div>
+          <div class="avg">${avg!==null? 'المعدل: '+avg.toFixed(2) : 'لا توجد نقط مسجلة بعد'}</div>
+        </div>
+        <div class="chev">▾</div>
+      </div>
+      <div class="phase-body">
+        <table class="grades">
+          <thead><tr><th>السنة الدراسية</th><th>المستوى/القسم</th><th>المعدل</th><th></th></tr></thead>
+          <tbody>${rowsHtml || '<tr><td colspan="4" style="color:var(--muted);padding:8px 4px;">لم تُضف أي سنة بعد.</td></tr>'}</tbody>
+        </table>
+        <div class="row-actions">
+          <button class="btn small ghost add-row">+ إضافة سنة</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // overall stats
+  let allVals = [];
+  let allRows = 0;
+  PHASES.forEach(p=>{
+    const rows = DATA.path[p.key]||[];
+    allRows += rows.length;
+    rows.forEach(r=>{ const v=parseFloat(r.avg); if(!isNaN(v)) allVals.push(v); });
+  });
+  document.getElementById('pathOverallAvg').textContent = allVals.length? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2) : '--';
+  document.getElementById('pathYearsCount').textContent = allRows;
+
+  bindPathEvents();
+}
+
+function bindPathEvents(){
+  document.querySelectorAll('.phase-head').forEach(h=>{
+    h.onclick = ()=>{ h.parentElement.classList.toggle('open'); };
+  });
+  document.querySelectorAll('.add-row').forEach(btn=>{
+    btn.onclick = (e)=>{
+      const phaseEl = e.target.closest('.phase');
+      const key = phaseEl.dataset.phase;
+      DATA.path[key].push({id:uid(), year:'', grade:'', avg:''});
+      renderPath();
+      renderHome();
+      saveData(document.getElementById('pathSaveNote'));
+      phaseEl.classList.add('open');
+      // reopen matching phase after re-render
+      document.querySelectorAll('.phase').forEach(p=>{ if(p.dataset.phase===key) p.classList.add('open'); });
+    };
+  });
+  document.querySelectorAll('table.grades tbody tr').forEach(tr=>{
+    const id = tr.dataset.id;
+    if(!id) return;
+    const phaseEl = tr.closest('.phase');
+    const key = phaseEl.dataset.phase;
+    const row = DATA.path[key].find(r=>r.id===id);
+    tr.querySelector('.f-year').oninput = (e)=>{ row.year = e.target.value; };
+    tr.querySelector('.f-grade').oninput = (e)=>{ row.grade = e.target.value; };
+    tr.querySelector('.f-avg').oninput = (e)=>{ row.avg = e.target.value; };
+    tr.querySelector('.f-year').onblur = ()=>{ finalizeRow(); };
+    tr.querySelector('.f-grade').onblur = ()=>{ finalizeRow(); };
+    tr.querySelector('.f-avg').onblur = ()=>{ finalizeRow(); };
+    tr.querySelector('.rm').onclick = ()=>{
+      DATA.path[key] = DATA.path[key].filter(r=>r.id!==id);
+      renderPath();
+      renderHome();
+      saveData(document.getElementById('pathSaveNote'));
+      phaseEl.classList.add('open');
+      document.querySelectorAll('.phase').forEach(p=>{ if(p.dataset.phase===key) p.classList.add('open'); });
+    };
+  });
+}
+
+function finalizeRow(){
+  renderHome();
+  updateOverallOnly();
+  saveData(document.getElementById('pathSaveNote'));
+}
+
+function updateOverallOnly(){
+  let allVals = [];
+  let allRows = 0;
+  PHASES.forEach(p=>{
+    const rows = DATA.path[p.key]||[];
+    allRows += rows.length;
+    rows.forEach(r=>{ const v=parseFloat(r.avg); if(!isNaN(v)) allVals.push(v); });
+  });
+  document.getElementById('pathOverallAvg').textContent = allVals.length? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2) : '--';
+  document.getElementById('pathYearsCount').textContent = allRows;
+  document.querySelectorAll('.phase').forEach(phaseEl=>{
+    const key = phaseEl.dataset.phase;
+    const rows = DATA.path[key]||[];
+    const avg = computeAvg(rows);
+    phaseEl.querySelector('.avg').textContent = avg!==null? 'المعدل: '+avg.toFixed(2) : 'لا توجد نقط مسجلة بعد';
+  });
+}
+
+function renderHome(){
+  let allVals = [];
+  PHASES.forEach(p=>{
+    (DATA.path[p.key]||[]).forEach(r=>{ const v=parseFloat(r.avg); if(!isNaN(v)) allVals.push(v); });
+  });
+  document.getElementById('statAvg').textContent = allVals.length? (allVals.reduce((a,b)=>a+b,0)/allVals.length).toFixed(2) : '--';
+  document.getElementById('statLevel').textContent = DATA.profile.level || '--';
+
+  const name = DATA.profile.name || '';
+  document.getElementById('stripName').textContent = name || 'أضف اسمك في «الملف الشخصي»';
+  document.getElementById('stripNid').textContent = 'الرقم الوطني: ' + (DATA.profile.nid || DATA.profile.cne || 'غير محدد');
+  document.getElementById('sealInit').textContent = name ? name.trim().charAt(0) : '؟';
+}
+
+function renderProfileForm(){
+  document.getElementById('fName').value = DATA.profile.name || '';
+  document.getElementById('fInstitution').value = DATA.profile.institution || '';
+  document.getElementById('fLevel').value = DATA.profile.level || '';
+  document.getElementById('fNid').value = DATA.profile.nid || '';
+  document.getElementById('fCne').value = DATA.profile.cne || '';
+}
+
+document.getElementById('saveProfileBtn').onclick = ()=>{
+  DATA.profile = {
+    name: document.getElementById('fName').value.trim(),
+    institution: document.getElementById('fInstitution').value.trim(),
+    level: document.getElementById('fLevel').value,
+    nid: document.getElementById('fNid').value.trim(),
+    cne: document.getElementById('fCne').value.trim()
+  };
+  renderHome();
+  saveData(document.getElementById('profileSaveNote'));
+};
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  };
+});
+
+function renderAll(){
+  renderNews();
+  renderPath();
+  renderHome();
+  renderProfileForm();
+}
+
+loadData();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
